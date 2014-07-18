@@ -1,0 +1,57 @@
+mkdir /data/shards
+cd /data/shards
+mkdir s0 s1 s2 s3
+
+mongod --dbpath /data/shards/s0 --port 25000 --fork --logpath /data/shards/0.log 
+mongod --dbpath /data/shards/s1 --port 25001 --fork --logpath /data/shards/1.log 
+mongod --dbpath /data/shards/s2 --port 25002 --fork --logpath /data/shards/2.log 
+mongod --dbpath /data/shards/s3 --port 25003 --fork --logpath /data/shards/3.log 
+mongod --dbpath /data/shards/c --port 25999 --fork --logpath /data/shards/c.log 
+mongos --port 25017 --configdb localhost:25999 --fork --logpath /data/shards/s.log
+
+
+
+mongo localhost:25017
+
+>
+	sh.addShard("localhost:25000")
+	sh.addShard("localhost:25001")
+	sh.addShard("localhost:25002")
+	sh.addShard("localhost:25003")
+
+
+mongoimport --host localhost:25017 --db twitter --collection tweets < ~/work/training/data/sampledata/twitter.json 
+
+use zips
+db.zipcode.ensureIndex({zip:1});
+sh.enableSharding("zips")
+sh.shardCollection("zips.zipcode", {zip:1})
+
+
+1) setup mongod on a1/a2/a3
+
+2) Edit mongod.conf on a1/a2/a3
+
+	dbpath=/data
+	replSet = rs
+	
+	comment out:  bind_ip=127.0.0.1
+	
+3) start mongod
+
+4) Initialize replica set
+
+rsconf =  {
+	_id: "rs",    members: [      
+	{ _id: 0 , host:'tja1.mongodb.ga:27017' },       
+	{ _id: 1, host:'tja2.mongodb.ga:27017' },  
+	{_id: 2, host:'tja3.mongodb.ga:27017'}     
+	]
+};
+	   			    
+rs.initiate(rsconf);
+
+
+5) Install monitoring agent and start
+
+6) 

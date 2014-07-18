@@ -1,0 +1,6 @@
+
+var db = db.getSiblingDB("demo");
+for(var i=0; i<100000;i++){
+	db.seconds.insert({ts: new Date()});
+	sleep(10);
+}
