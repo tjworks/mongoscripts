@@ -7,7 +7,7 @@
 
 ##### Feel free to change following section values ####
 # Changing this to include: country, province, city, company
-cn_prefix="/C=CN/ST=GD/L=Shenzhen/O=MongoDB China"
+dn_prefix="/C=CN/ST=GD/L=Shenzhen/O=MongoDB China"
 ou_member="MyServers"
 ou_client="MyClients"
 mongodb_server_hosts=( "server1" "server2" "server3" )
@@ -25,7 +25,7 @@ openssl genrsa -out root-ca.key 2048
 # !!! In production you will want to use -aes256 to password protect the keys
 # openssl genrsa -aes256 -out root-ca.key 2048
 
-openssl req -new -x509 -days 3650 -key root-ca.key -out root-ca.crt -subj "$cn_prefix/CN=ROOTCA"
+openssl req -new -x509 -days 3650 -key root-ca.key -out root-ca.crt -subj "$dn_prefix/CN=ROOTCA"
 
 mkdir -p RootCA/ca.db.certs
 echo "01" >> RootCA/ca.db.serial
@@ -93,7 +93,7 @@ openssl genrsa -out signing-ca.key 2048
 # !!! In production you will want to use -aes256 to password protect the keys
 # openssl genrsa -aes256 -out signing-ca.key 2048
 
-openssl req -new -days 1460 -key signing-ca.key -out signing-ca.csr -subj "$cn_prefix/CN=CA-SIGNER"
+openssl req -new -days 1460 -key signing-ca.key -out signing-ca.csr -subj "$dn_prefix/CN=CA-SIGNER"
 openssl ca -batch -name RootCA -config root-ca.cfg -extensions v3_ca -out signing-ca.crt -infiles signing-ca.csr 
 
 mkdir -p SigningCA/ca.db.certs
@@ -115,7 +115,7 @@ echo "##### STEP 4: Create server certificates"
 for host in "${mongodb_server_hosts[@]}"; do
 	echo "Generating key for $host"
   	openssl genrsa  -out ${host}.key 2048
-	openssl req -new -days 365 -key ${host}.key -out ${host}.csr -subj "$cn_prefix/OU=$ou_member/CN=${host}"
+	openssl req -new -days 365 -key ${host}.key -out ${host}.csr -subj "$dn_prefix/OU=$ou_member/CN=${host}"
 	openssl ca -batch -name SigningCA -config root-ca.cfg -out ${host}.crt -infiles ${host}.csr
 	cat ${host}.crt ${host}.key > ${host}.pem	
 done 
@@ -126,7 +126,7 @@ echo "##### STEP 5: Create client certificates"
 for host in "${mongodb_client_hosts[@]}"; do
 	echo "Generating key for $host"
   	openssl genrsa  -out ${host}.key 2048
-	openssl req -new -days 365 -key ${host}.key -out ${host}.csr -subj "$cn_prefix/OU=$ou_client/CN=${host}"
+	openssl req -new -days 365 -key ${host}.key -out ${host}.csr -subj "$dn_prefix/OU=$ou_client/CN=${host}"
 	openssl ca -batch -name SigningCA -config root-ca.cfg -out ${host}.crt -infiles ${host}.csr
 	cat ${host}.crt ${host}.key > ${host}.pem
 done 
