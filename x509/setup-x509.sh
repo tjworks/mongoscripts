@@ -194,4 +194,4 @@ db.getSiblingDB("\$external").auth(
 )
 EOF
 
-mongo --ssl --sslPEMKeyFile client1.pem --sslCAFile root-ca.pem --sslAllowInvalidHostnames --shell do_login.js
+# mongo --ssl --sslPEMKeyFile client1.pem --sslCAFile root-ca.pem --sslAllowInvalidHostnames --shell do_login.js
