@@ -17,7 +17,7 @@ mongodb_port=27017
 
 # make a subdirectory for mongodb cluster
 kill $(ps -ef | grep mongod | grep set509 | awk '{print $2}')
-rm -Rf db/*
+#rm -Rf db/*
 mkdir -p db
 
 echo "##### STEP 1: Generate root CA "
@@ -184,7 +184,7 @@ for host in "${mongodb_server_hosts[@]}"; do
 done 
 
 
-echo "##### STEP 9: Connecting to replicaset using certificate\n"
+# echo "##### STEP 9: Connecting to replicaset using certificate\n"
 cat > do_login.js <<EOF
 db.getSiblingDB("\$external").auth(
   {
